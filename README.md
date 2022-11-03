@@ -1,7 +1,7 @@
 # Multimodal Single Cell Integration
  ZB4171 Project
 ```
-Multiomics
+CITE-seq
 │   README.md
 │   metadata_explore.ipynb
 │
@@ -12,7 +12,15 @@ Multiomics
 └───data
 │   │   train_cite_targets.h5
 │   │   train_cite_inputs.h5
-│
-
+|   |   small_inputs.csv
+|   |   small_targets.csv
+|
+└───subset
+│   │   train_cite_targets.csv
+│   │   train_cite_inputs.csv
+|
+└───reduced
+│   │   train_cite_reduced.csv
+|
 
 ```
