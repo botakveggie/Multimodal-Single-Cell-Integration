@@ -1,12 +1,16 @@
 import numpy as np
 import pandas as pd
-import h5py
-import hdf5plugin
 
 import umap 
 import sklearn
 from sklearn.preprocessing import normalize
 from sklearn.decomposition import PCA
+
+AWS = False
+
+if not AWS:
+    import h5py
+    import hdf5plugin
 
 def main():
     # loading data
@@ -24,35 +28,33 @@ def main():
             df_metadata_subset = pd.concat([df_metadata_subset, df], axis=0, ignore_index=True)
 
     ## train cite inputs
-    f = h5py.File("data/train_cite_inputs.h5",'r') 
-    gene_id = f['train_cite_inputs']['axis0'][:]
-    gene_id = [gene_id[i].decode('UTF-8') for i in range(22050)] # converts gene_id from bytes to str
-    cell_id = f['train_cite_inputs']['axis1'][:]
-    cell_id = [cell_id[i].decode('UTF-8') for i in range(70988)] # converts cell_id from bytes to str
-
+    if not AWS:
+        f = h5py.File("data/train_cite_inputs.h5",'r') 
+        gene_id = f['train_cite_inputs']['axis0'][:]
+        gene_id = [gene_id[i].decode('UTF-8') for i in range(22050)] # converts gene_id from bytes to str
+        cell_id = f['train_cite_inputs']['axis1'][:]
+        cell_id = [cell_id[i].decode('UTF-8') for i in range(70988)] # converts cell_id from bytes to str
+    else:    
+        f = pd.read_hdf("data/train_cite_inputs.h5") 
+        gene_id = list(f.columns)
+        cell_id = list(f.index)
+        
     ## Find the row indexes for the cell_ids in the selected subset, from the h5 file. 
     row_indexes = [cell_id.index(id) for id in df_metadata_subset['cell_id']] 
     row_indexes.sort() # array can only be accessed with ordered index
-    x = f['train_cite_inputs']['block0_values'][row_indexes] # retrieves all the input rows for the selected cell_ids
 
     new_cell_order = [cell_id[i] for i in row_indexes] # retrieving cell_ids of the input rows in sorted order
-    df_cite_input = pd.DataFrame(x, columns=gene_id, index=new_cell_order) 
+    
+    if not AWS:
+        x = f['train_cite_inputs']['block0_values'][row_indexes] # retrieves all the input rows for the selected cell_ids
+        df_cite_input = pd.DataFrame(x, columns=gene_id, index=new_cell_order) 
+    else:
+        df_cite_input = f.loc[row_indexes]
+
 
     ## updating metadata with the same cell id order as the subset df
     df_metadata_subset = df_metadata_subset.set_index('cell_id')
     df_metadata_subset = df_metadata_subset.reindex(new_cell_order) 
-
-    f.close()
-    ## train cite targets
-    f = h5py.File("data/train_cite_targets.h5",'r')
-    protein_id = f['train_cite_targets']['axis0'][:]
-    protein_id = [protein_id[i].decode('UTF-8') for i in range(140)]
-
-    x = f['train_cite_targets']['block0_values'][row_indexes] # same index/ cell order is used to retrieve corr rows
-    df_cite_target = pd.DataFrame(x, columns=protein_id, index=new_cell_order)
-
-    f.close()
-
 
     # Low variance filter - dropping columns with <0.5 variance
     variance = df_cite_input.var() # computes variance
@@ -84,3 +86,4 @@ def main():
     pd.DataFrame(umap_data, index=reduced_data.index).to_csv("data/train_cite_reduced.csv")
 if __name__ == "__main__":
     main()
+
