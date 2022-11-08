@@ -19,7 +19,7 @@ df_metadata_subset = pd.DataFrame(columns=df_metadata.columns)
 for donor in x:
     for day in y:
         df = df_metadata.loc[(df_metadata.donor == donor) & (df_metadata.day == day)]
-        df = df.iloc[:1000, :]
+        df = df.iloc[:1500, :] # change this to change size 
         df_metadata_subset = pd.concat([df_metadata_subset, df], axis=0, ignore_index=True)
 
 ## train cite inputs
@@ -65,13 +65,19 @@ reduced_data = df_cite_input[variable]
 # PCA
 new_pca = PCA(n_components=None)
 pca_data = new_pca.fit_transform(reduced_data)
-## obtaining PCA with tot
-data_for_umap = pd.DataFrame(pca_data[:, 0:4877], index=reduced_data.index) 
+## obtaining PCA with sum 0.9 variance
+ACC_VAR = 0
+for i, var in enumerate(new_pca.explained_variance_ratio_):
+    ACC_VAR+=var
+    # print(var)
+    if ACC_VAR > 0.9 : 
+        break
+data_for_umap = pd.DataFrame(pca_data[:, 0:(i+1)], index=reduced_data.index) 
 
-# UMAP
+# UMAP - def components=2, neigh=15, min_dist=0.1
 manifold = umap.UMAP(random_state = 4171,
                         n_components=240,
                         n_neighbors=50,
                         min_dist=0.3).fit(data_for_umap)
-umap_data = manifold.transform(data_for_umap)
+umap_data = manifold.transform(data_for_umap) # reduced data for NN
 
