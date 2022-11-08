@@ -56,6 +56,23 @@ def main():
     df_metadata_subset = df_metadata_subset.set_index('cell_id')
     df_metadata_subset = df_metadata_subset.reindex(new_cell_order) 
 
+    ## train cite targets
+    if not AWS:
+        f.close()
+        f = h5py.File("data/train_cite_targets.h5",'r')
+        protein_id = f['train_cite_targets']['axis0'][:]
+        protein_id = [protein_id[i].decode('UTF-8') for i in range(140)]
+        y = f['train_cite_targets']['block0_values'][row_indexes] # same index/ cell order is used to retrieve corr rows
+        df_cite_target = pd.DataFrame(y, columns=protein_id, index=new_cell_order) 
+        f.close() 
+    else: 
+        f = pd.read_hdf("data/train_cite_targets.h5")
+        protein_id = list(f.columns)
+        df_cite_target = f[row_indexes]
+
+    # save targets to csv
+    df_cite_target.to_csv("data/train_cite_targets_reduced.csv")
+
     # Low variance filter - dropping columns with <0.5 variance
     variance = df_cite_input.var() # computes variance
     columns = df_cite_input.columns
@@ -82,8 +99,8 @@ def main():
                             n_neighbors=30,
                             min_dist=0.5).fit_transform(data_for_umap) # reduced data for NN
 
-    # saving umap data
-    pd.DataFrame(umap_data, index=reduced_data.index).to_csv("data/train_cite_reduced.csv")
+    # saving umap data to csv
+    pd.DataFrame(umap_data, index=reduced_data.index).to_csv("data/train_cite_inputs_reduced.csv")
 if __name__ == "__main__":
     main()
-
+    
