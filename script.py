@@ -75,9 +75,8 @@ for i, var in enumerate(new_pca.explained_variance_ratio_):
 data_for_umap = pd.DataFrame(pca_data[:, 0:(i+1)], index=reduced_data.index) 
 
 # UMAP - def components=2, neigh=15, min_dist=0.1
-manifold = umap.UMAP(random_state = 4171,
+umap_data = umap.UMAP(random_state = 4171,
                         n_components=240,
                         n_neighbors=50,
-                        min_dist=0.3).fit(data_for_umap)
-umap_data = manifold.transform(data_for_umap) # reduced data for NN
+                        min_dist=0.3).fit_transform(data_for_umap) # reduced data for NN
 
