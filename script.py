@@ -19,7 +19,7 @@ df_metadata_subset = pd.DataFrame(columns=df_metadata.columns)
 for donor in x:
     for day in y:
         df = df_metadata.loc[(df_metadata.donor == donor) & (df_metadata.day == day)]
-        df = df.iloc[:1500, :] # change this to change size 
+        df = df.sample(1500, random_state=4171, axis=0) # random state can be changed
         df_metadata_subset = pd.concat([df_metadata_subset, df], axis=0, ignore_index=True)
 
 ## train cite inputs
@@ -65,18 +65,19 @@ reduced_data = df_cite_input[variable]
 # PCA
 new_pca = PCA(n_components=None)
 pca_data = new_pca.fit_transform(reduced_data)
-## obtaining PCA with sum 0.9 variance
+## obtaining PCAs with sum 0.9 variance
 ACC_VAR = 0
 for i, var in enumerate(new_pca.explained_variance_ratio_):
     ACC_VAR+=var
-    # print(var)
     if ACC_VAR > 0.9 : 
         break
 data_for_umap = pd.DataFrame(pca_data[:, 0:(i+1)], index=reduced_data.index) 
 
 # UMAP - def components=2, neigh=15, min_dist=0.1
 umap_data = umap.UMAP(random_state = 4171,
-                        n_components=240,
-                        n_neighbors=50,
-                        min_dist=0.3).fit_transform(data_for_umap) # reduced data for NN
+                        n_components=200,
+                        n_neighbors=30,
+                        min_dist=0.5).fit_transform(data_for_umap) # reduced data for NN
 
+# saving umap data
+pd.DataFrame(umap_data, index=reduced_data.index).to_csv("data/train_cite_reduced.csv")
