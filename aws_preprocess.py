@@ -1,5 +1,3 @@
-# python3 aws_preprocess.py --inputs_path [inputs_path] --output_path [output_path]
-import argparse
 import numpy as np
 import pandas as pd
 import tables
