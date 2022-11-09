@@ -1,11 +1,12 @@
 # python3 main/get_predictions.py --inputs_path [inputs_path] --model_path [model_path] --output_path [output_path]
+import argparse
 import pandas as pd
 
 import torch
 from torch.utils.data import DataLoader
 
 from models import CiteDataset, CiteseqModel
-from utils import mse_criterion, collator, correlation_score, get_test_arguments
+from utils import collator
 from parameters import VERBOSE, device_str
 
 torch.manual_seed(0)
@@ -29,6 +30,13 @@ def get_predictions(model, dataset: CiteDataset, device='cpu'):
             # get the label predictions
     preds = pd.DataFrame(preds_tensor, columns=dataset.protein_ids, index=dataset.cell_ids)
     return preds
+
+def get_test_arguments():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--inputs_path', help='path to the inputs file')
+    parser.add_argument('--model_path', required=True, help='path to the model file')
+    parser.add_argument('--output_path', default='out.txt', help='path to the output file during testing')
+    return parser.parse_args()
 
 def main(args):
     if args.device_str is not None: 

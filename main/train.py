@@ -1,5 +1,6 @@
 # python3 main/train.py --inputs_path [inputs_path] --targets_path [targets_path] --model_path [model_path] --output_path [output_path]
 import datetime
+import argparse
 
 import torch
 import torch.nn as nn
@@ -7,7 +8,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 
 from models import CiteDataset, CiteseqModel
-from utils import collator, get_train_arguments
+from utils import collator
 from parameters import VERBOSE, LEARNING_RATE, BATCH_SIZE, NUM_EPOCHS, DROPOUT, device_str
 
 torch.manual_seed(0)
@@ -20,7 +21,7 @@ def train(model, dataset, batch_size, learning_rate, num_epoch, device='cpu', mo
     data_loader = DataLoader(dataset, batch_size=batch_size, collate_fn=collator, shuffle=True)
 
     # assign these variables
-    criterion=loss_fn
+    criterion=loss_fn()
     optimizer = optim(model.parameters(), lr=learning_rate)
     # scheduler = ExponentialLR(optimizer, gamma=0.9)
 
@@ -39,7 +40,7 @@ def train(model, dataset, batch_size, learning_rate, num_epoch, device='cpu', mo
 
             model.zero_grad()
             # do forward propagation
-            y_preds = model(inputs)
+            y_preds = model(inputs.float())
 
             # do loss calculation
             loss_tensor = criterion(input= y_preds, target= targets)
@@ -77,6 +78,14 @@ def train(model, dataset, batch_size, learning_rate, num_epoch, device='cpu', mo
     torch.save(checkpoint, model_path)
     print('Model saved in ', model_path)
     print('Training finished in {} minutes.'.format((end - start).seconds / 60.0))
+
+def get_train_arguments():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--inputs_path', help='path to the inputs file')
+    parser.add_argument('--targets_path', default=None, help='path to the targets file')
+    parser.add_argument('--model_path', required=True, help='path to save the model file after training')
+    parser.add_argument('--device_str', default='cpu', help='option for gpu acceleration. M1 Macbooks can use `mps`')
+    return parser.parse_args()
 
 def main(args):
     if args.device_str is not None: 
