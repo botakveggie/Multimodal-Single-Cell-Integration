@@ -76,10 +76,10 @@ class CiteDataset(Dataset):
             (inputs, targets), where inputs and targets are PyTorch tensors.
         """
         input_row = self.inputs.iloc[i,:]
-        inputs = torch.tensor(input_row) 
+        inputs = torch.tensor(input_row, dtype=torch.float) 
         targets = None
         if hasattr(self, 'targets'):
-            targets = torch.tensor(self.targets.iloc[i,:])
+            targets = torch.tensor(self.targets.iloc[i,:], dtype=torch.float)
         
         return inputs, targets
 
