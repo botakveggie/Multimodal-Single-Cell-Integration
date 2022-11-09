@@ -36,22 +36,7 @@ def collator(batch):
     # batch_targets tensor dimensions: batch_dim x num_targets
     inputs, targets = zip(*batch)
 
-    batch_inputs = torch.cat(inputs)
+    batch_inputs = torch.cat([tens.unsqueeze(0) for tens in inputs])
     if targets: # for training, return both texts and batch_targets
-        batch_targets = torch.cat(targets)
+        batch_targets = torch.cat([tens.unsqueeze(0) for tens in targets])
     return batch_inputs, batch_targets
-
-def get_train_arguments():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--inputs_path', help='path to the inputs file')
-    parser.add_argument('--targets_path', default=None, help='path to the targets file')
-    parser.add_argument('--model_path', required=True, help='path to save the model file after training')
-    parser.add_argument('--device_str', default='cpu', help='option for gpu acceleration. M1 Macbooks can use `mps`')
-    return parser.parse_args()
-
-def get_test_arguments():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--inputs_path', help='path to the inputs file')
-    parser.add_argument('--model_path', required=True, help='path to the model file')
-    parser.add_argument('--output_path', default='out.txt', help='path to the output file during testing')
-    return parser.parse_args()
