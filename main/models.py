@@ -47,11 +47,15 @@ class CiteDataset(Dataset):
             self.num_features = self.inputs.shape[1]
             if targets_path: # Init CiteDataset for training
                 self.targets = pd.read_csv(targets_path, index_col=0)
+                self.protein_ids = list(self.targets.columns)
 
                 # Values that inform the shape of the targets matrix
                 self.num_targets = self.targets.shape[1]
-        self.protein_ids = list(self.targets.columns)
-        self.cell_ids = list(self.targets.index)
+        self.cell_ids = list(self.inputs.index)
+        if not hasattr(self, 'targets'): 
+            self.protein_ids = None
+            self.num_targets= 0
+            self.targets = None
 
     def data_size(self):
         """
@@ -62,7 +66,9 @@ class CiteDataset(Dataset):
             num_targets: int
                 Number of target outputs.
         """
-        return self.num_features, self.num_targets
+        num_targets = 0
+        if hasattr(self, 'num_targets'): num_targets = self.num_targets
+        return self.num_features, num_targets
     
     def __len__(self):
         """
@@ -78,7 +84,7 @@ class CiteDataset(Dataset):
         input_row = self.inputs.iloc[i,:]
         inputs = torch.tensor(input_row, dtype=torch.float) 
         targets = None
-        if hasattr(self, 'targets'):
+        if self.targets is not None:
             targets = torch.tensor(self.targets.iloc[i,:], dtype=torch.float)
         
         return inputs, targets

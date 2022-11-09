@@ -101,11 +101,16 @@ def main():
             break
     data_for_umap = pd.DataFrame(pca_data[:, 0:(i+1)], index=reduced_data.index) 
     print('PCA: {} components  for 0.9 of total variance'.format(i+1))
+    pcaname = 'data/train_cite_inputs_PCA{}.csv'.format(i+1)
+    # saving umap data to csv
+    print(f'saving to: {pcaname}')
+    pd.DataFrame(data_for_umap, index=reduced_data.index).to_csv(pcaname)
     # UMAP - def components=2, neigh=15, min_dist=0.1
+    if True: return
     print('Performing UMAP')
     umap_data = umap.UMAP(random_state = 4171,
                             n_components=200,
-                            n_neighbors=30,
+                            n_neighbors=50,
                             min_dist=0.5).fit_transform(data_for_umap) # reduced data for NN
 
     # saving umap data to csv
