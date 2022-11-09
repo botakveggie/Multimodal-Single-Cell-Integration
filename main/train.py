@@ -1,6 +1,7 @@
-# python3 main/train.py --inputs_path data/train_cite_inputs_reduced.csv --targets_path data/train_cite_targets_reduced.csv --model_path /pre-trained-models/model --device_str mps
+# python3 main/train.py --inputs_path data/train_cite_inputs_reduced.csv --targets_path data/train_cite_targets_reduced.csv --model_path ./pre-trained-models
 import datetime
 import argparse
+import os
 
 import torch
 import torch.nn as nn
@@ -44,7 +45,7 @@ def train(model, dataset, batch_size, learning_rate, num_epoch, device='cpu', mo
 
             # do loss calculation
             loss_tensor = criterion(input= y_preds, target= targets)
-            if VERBOSE == 1: print('Loss tensor:\n',loss_tensor)
+            # if VERBOSE == 1: print('Loss tensor:\n',loss_tensor)
 
             # do backward propagation
             loss_tensor.backward()
@@ -66,18 +67,20 @@ def train(model, dataset, batch_size, learning_rate, num_epoch, device='cpu', mo
         # Check correlation score with validation set
         # correlation_score()
     end = datetime.datetime.now()
+    print('Training finished in {} minutes.'.format((end - start).seconds / 60.0))
     
     # define the checkpoint and save it to the model path
     # tip: the checkpoint can contain more than just the model
     checkpoint = {
         'epoch':epoch,
         'model_state_dict': model.state_dict(),
-        'optimizer_state_dict': optimizer.state_dict()
-        # 'loss':running_loss
+        'optimizer_state_dict': optimizer.state_dict(),
+        'protein_ids': dataset.protein_ids,
+        'params': {'VERBOSE': VERBOSE, 'LEARNING_RATE': LEARNING_RATE, 'BATCH_SIZE': BATCH_SIZE, 'NUM_EPOCHS': NUM_EPOCHS, 'DROPOUT': DROPOUT}
     }
-    torch.save(checkpoint, model_path)
+    # os.makedirs(model_path, exist_ok = True) 
+    torch.save(checkpoint, os.path.join(model_path, '_model.pth'))
     print('Model saved in ', model_path)
-    print('Training finished in {} minutes.'.format((end - start).seconds / 60.0))
 
 def get_train_arguments():
     parser = argparse.ArgumentParser()

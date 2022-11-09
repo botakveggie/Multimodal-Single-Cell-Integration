@@ -35,8 +35,8 @@ def collator(batch):
     # batch_inputs tensor dimensions: batch_dim x INPUT_DIM
     # batch_targets tensor dimensions: batch_dim x num_targets
     inputs, targets = zip(*batch)
-
+    batch_targets = []
     batch_inputs = torch.cat([tens.unsqueeze(0) for tens in inputs])
-    if targets: # for training, return both texts and batch_targets
+    if targets[0] is not None: # for training, return both texts and batch_targets
         batch_targets = torch.cat([tens.unsqueeze(0) for tens in targets])
     return batch_inputs, batch_targets
