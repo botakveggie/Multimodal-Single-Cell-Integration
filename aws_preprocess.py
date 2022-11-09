@@ -47,10 +47,10 @@ def get_test_arguments():
     return parser.parse_args()
 
 def main(args):
-    df_cite_input = pd.read_hdf(args.inputs_path) 
-    res = feature_red(df_cite_input)
-    
-    # saving umap data to csv
+    df_cite_input = pd.read_hdf(args.inputs_path) # reading .h5 into df
+    res = feature_red(df_cite_input) 
+
+    # saving umap/reduced data to csv
     res.to_csv(args.output_path)
 
 if __name__=="__main__":

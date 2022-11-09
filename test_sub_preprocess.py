@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-
+import tables
 import umap 
 import sklearn
 from sklearn.preprocessing import normalize
@@ -14,8 +14,6 @@ if not AWS:
 
 def main():
     # loading data
-    ## df_test_input = pd.read_csv("data/test_cite_inputs.csv", index_col=0)
-
     df_metadata = pd.read_csv("metadata/metadata.csv")
     df_metadata = df_metadata.loc[df_metadata.technology=="citeseq"]
 
@@ -29,7 +27,7 @@ def main():
             df = df.sample(1500, random_state=4171, axis=0) # random state can be changed
             df_metadata_subset = pd.concat([df_metadata_subset, df], axis=0, ignore_index=True)
 
-    ## train cite inputs
+    ## test cite inputs
     if not AWS:
         f = h5py.File("data/test_cite_inputs.h5",'r') 
         gene_id = f['test_cite_inputs']['axis0'][:]
