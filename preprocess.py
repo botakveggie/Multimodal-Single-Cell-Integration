@@ -14,8 +14,10 @@ if not AWS:
 
 def main():
     # loading data
+    print('loading metadata')
     df_metadata = pd.read_csv("metadata/metadata.csv")
     df_metadata = df_metadata.loc[df_metadata.technology=="citeseq"]
+    print('metadata loaded')
 
     ## training subset: obtaining subset of size n per day per sample
     x = list([13176,31800,32606]) # note:  donors 13176, 31800, and 32606 (train), 27678 (test)
@@ -28,6 +30,7 @@ def main():
             df_metadata_subset = pd.concat([df_metadata_subset, df], axis=0, ignore_index=True)
 
     ## train cite inputs
+    print('loading train inputs')
     if not AWS:
         f = h5py.File("data/train_cite_inputs.h5",'r') 
         gene_id = f['train_cite_inputs']['axis0'][:]
@@ -38,6 +41,7 @@ def main():
         f = pd.read_hdf("data/train_cite_inputs.h5") 
         gene_id = list(f.columns)
         cell_id = list(f.index)
+    print('inputs loaded')ndex)
         
     ## Find the row indexes for the cell_ids in the selected subset, from the h5 file. 
     row_indexes = [cell_id.index(id) for id in df_metadata_subset['cell_id']] 
@@ -57,6 +61,7 @@ def main():
     df_metadata_subset = df_metadata_subset.reindex(new_cell_order) 
 
     ## train cite targets
+    print('loading train targets')
     if not AWS:
         f.close()
         f = h5py.File("data/train_cite_targets.h5",'r')
@@ -69,9 +74,11 @@ def main():
         f = pd.read_hdf("data/train_cite_targets.h5")
         protein_id = list(f.columns)
         df_cite_target = f[row_indexes]
+    print('targets loaded')
 
     # save targets to csv
     df_cite_target.to_csv("data/train_cite_targets_reduced.csv")
+    print('targets saved to:', 'data/train_cite_targets_reduced.csv')
 
     # Low variance filter - dropping columns with <0.5 variance
     variance = df_cite_input.var() # computes variance
@@ -83,6 +90,7 @@ def main():
     reduced_data = df_cite_input[variable] 
 
     # PCA
+    print('Performing PCA from {} features with considerable variance'.format(reduced_data.shape[1]))
     new_pca = PCA(n_components=None)
     pca_data = new_pca.fit_transform(reduced_data)
     ## obtaining PCAs with sum 0.9 variance
@@ -92,14 +100,16 @@ def main():
         if ACC_VAR > 0.9 : 
             break
     data_for_umap = pd.DataFrame(pca_data[:, 0:(i+1)], index=reduced_data.index) 
-
+    print('PCA: {} components  for 0.9 of total variance'.format(i+1))
     # UMAP - def components=2, neigh=15, min_dist=0.1
+    print('Performing UMAP')
     umap_data = umap.UMAP(random_state = 4171,
                             n_components=200,
                             n_neighbors=30,
                             min_dist=0.5).fit_transform(data_for_umap) # reduced data for NN
 
     # saving umap data to csv
+    print('UMAP done. saving to: data/train_cite_inputs_reduced.csv')
     pd.DataFrame(umap_data, index=reduced_data.index).to_csv("data/train_cite_inputs_reduced.csv")
 if __name__ == "__main__":
     main()
