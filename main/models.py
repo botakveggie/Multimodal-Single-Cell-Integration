@@ -136,8 +136,8 @@ class CiteseqModel(nn.Module):
     """
     def __init__(self, num_features: int, num_targets: int, dropout: float):
         super().__init__()
-        self.encoder = Encoder(num_features)
-        self.decoder = Decoder(num_targets)
+        self.encoder = Encoder(num_features, dropout)
+        self.decoder = Decoder(num_targets, dropout)
         
     def forward(self, x):
         embeddings = self.encoder(x)
