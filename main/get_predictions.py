@@ -51,6 +51,8 @@ def main(args):
     if VERBOSE:
         print('Testing model with {} features. Trained for {} epochs'.format(num_features, checkpoint['epoch']))
     model = CiteseqModel(num_features, num_targets)
+    model.load_state_dict(checkpoint['model_state_dict'])
+
     preds = get_predictions(model, dataset, device_str)
     preds.to_csv(args.output_path)
 
