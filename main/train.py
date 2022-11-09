@@ -1,4 +1,4 @@
-# python3 main/train.py --inputs_path [inputs_path] --targets_path [targets_path] --model_path [model_path] --output_path [output_path]
+# python3 main/train.py --inputs_path data/train_cite_inputs_reduced.csv --targets_path data/train_cite_targets_reduced.csv --model_path /pre-trained-models/model --device_str mps
 import datetime
 import argparse
 
@@ -40,7 +40,7 @@ def train(model, dataset, batch_size, learning_rate, num_epoch, device='cpu', mo
 
             model.zero_grad()
             # do forward propagation
-            y_preds = model(inputs.float())
+            y_preds = model(inputs.float()).to(device)
 
             # do loss calculation
             loss_tensor = criterion(input= y_preds, target= targets)
@@ -91,6 +91,8 @@ def main(args):
     if args.device_str is not None: 
         device_str = args.device_str # uses gpu if device is specified
         print('Using gpu:', device_str)
+    if torch.cuda.is_available():
+        device_str = 'cuda'
     assert args.inputs_path is not None, "Please provide the inputs file using the --inputs_path argument"
     assert args.targets_path is not None, "Please provide the targets file using the --targets_path argument"
     dataset = CiteDataset(args.inputs_path, args.targets_path)
