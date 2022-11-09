@@ -91,6 +91,8 @@ def main(args):
     if args.device_str is not None: 
         device_str = args.device_str # uses gpu if device is specified
         print('Using gpu:', device_str)
+    if torch.cuda.is_available():
+        device_str = 'cuda'
     assert args.inputs_path is not None, "Please provide the inputs file using the --inputs_path argument"
     assert args.targets_path is not None, "Please provide the targets file using the --targets_path argument"
     dataset = CiteDataset(args.inputs_path, args.targets_path)
