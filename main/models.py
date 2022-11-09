@@ -76,10 +76,10 @@ class CiteDataset(Dataset):
             (inputs, targets), where inputs and targets are PyTorch tensors.
         """
         input_row = self.inputs.iloc[i,:]
-        inputs = torch.tensor(input_row) 
+        inputs = torch.tensor(input_row, dtype=torch.float) 
         targets = None
         if hasattr(self, 'targets'):
-            targets = torch.tensor(self.targets.iloc[i,:])
+            targets = torch.tensor(self.targets.iloc[i,:], dtype=torch.float)
         
         return inputs, targets
 
@@ -136,8 +136,8 @@ class CiteseqModel(nn.Module):
     """
     def __init__(self, num_features: int, num_targets: int, dropout: float):
         super().__init__()
-        self.encoder = Encoder(num_features)
-        self.decoder = Decoder(num_targets)
+        self.encoder = Encoder(num_features, dropout)
+        self.decoder = Decoder(num_targets, dropout)
         
     def forward(self, x):
         embeddings = self.encoder(x)
