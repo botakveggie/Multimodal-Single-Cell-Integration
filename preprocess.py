@@ -41,7 +41,7 @@ def main():
         f = pd.read_hdf("data/train_cite_inputs.h5") 
         gene_id = list(f.columns)
         cell_id = list(f.index)
-    print('inputs loaded')ndex)
+    print('inputs loaded')
         
     ## Find the row indexes for the cell_ids in the selected subset, from the h5 file. 
     row_indexes = [cell_id.index(id) for id in df_metadata_subset['cell_id']] 
