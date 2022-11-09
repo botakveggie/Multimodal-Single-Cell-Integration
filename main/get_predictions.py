@@ -34,6 +34,7 @@ def get_test_arguments():
     parser.add_argument('--inputs_path', help='path to the inputs file')
     parser.add_argument('--model_path', required=True, help='path to the model file')
     parser.add_argument('--output_path', default='out.txt', help='path to the output file during testing')
+    parser.add_argument('--device_str', default='cpu', help='option for gpu acceleration. M1 Macbooks can use `mps`')
     return parser.parse_args()
 
 def main(args):
