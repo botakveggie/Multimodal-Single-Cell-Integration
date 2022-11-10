@@ -119,6 +119,25 @@ class Encoder(nn.Module):
         x = self.l2(x)
         return x
 
+class RelativeEncoder(nn.Module):
+    """
+    Encoder module to generate embeddings of a RNA vector
+    with hidden layers that are relatively sized with the number of input dimensions.
+    """
+    def __init__(self, num_features: int, dropout: float):
+        super().__init__()
+        num_out = round(num_features/4)
+        self.l0 = FCBlock(num_features, num_out, dropout)
+        num_features, num_out = num_out, round(num_out/4)
+        self.l1 = FCBlock(num_features, num_out, dropout)
+        num_features = num_out
+        self.l2 = FCBlock(num_features, 30, dropout)
+        
+    def forward(self, x):
+        x = self.l0(x)
+        x = self.l1(x)
+        x = self.l2(x)
+        return x
 class Decoder(nn.Module):
     """
     Decoder module to extract Protein sequences from RNA embeddings
@@ -140,9 +159,12 @@ class CiteseqModel(nn.Module):
     Wrapper for the Encoder and Decoder modules
     Converts RNA sequence to Protein sequence
     """
-    def __init__(self, num_features: int, num_targets: int, dropout: float):
+    def __init__(self, num_features: int, num_targets: int, dropout: float, relative = False):
         super().__init__()
-        self.encoder = Encoder(num_features, dropout)
+        if relative:
+            self.encoder = RelativeEncoder(num_features, dropout)
+        else:
+            self.encoder = Encoder(num_features, dropout)
         self.decoder = Decoder(num_targets, dropout)
         
     def forward(self, x):
