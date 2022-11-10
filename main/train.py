@@ -6,11 +6,11 @@ import os
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, random_split
 
 from models import CiteDataset, CiteseqModel
 from utils import collator
-from parameters import VERBOSE, LEARNING_RATE, BATCH_SIZE, NUM_EPOCHS, DROPOUT, device_str
+from parameters import VERBOSE, LEARNING_RATE, BATCH_SIZE, NUM_EPOCHS, DROPOUT, device_str, VAL_FRAC
 
 torch.manual_seed(0)
 
@@ -19,8 +19,11 @@ def train(model, dataset, batch_size, learning_rate, num_epoch, device='cpu', mo
     Complete the training procedure below by specifying the loss function
     and optimizers with the specified learning rate and specified number of epoch.
     """
-    data_loader = DataLoader(dataset, batch_size=batch_size, collate_fn=collator, shuffle=True)
-
+    val_size = int(VAL_FRAC * dataset.num_cells)
+    train_size = dataset.num_cells - val_size  
+    train_set, validation_set = random_split(dataset, [train_size, val_size])
+    data_loader = DataLoader(train_set, batch_size=batch_size, collate_fn=collator, shuffle=True)
+    
     # assign these variables
     criterion=loss_fn()
     optimizer = optim(model.parameters(), lr=learning_rate)
@@ -61,11 +64,31 @@ def train(model, dataset, batch_size, learning_rate, num_epoch, device='cpu', mo
         # scheduler.step()
         if VERBOSE == 1:
             print('[Epoch %d, Step %5d] MSE loss: %.3f' %
-                (epoch + 1, step + 1, running_loss / 100))
+                (epoch + 1, step + 1, running_loss / (step+1)))
             running_loss = 0.0
     
-        # Check correlation score with validation set
-        # correlation_score()
+    # Check correlation score with validation set
+    # correlation_score()
+    model.eval()
+    data_loader = DataLoader(validation_set, batch_size=20, collate_fn=collator, shuffle=False)
+    # preds_list = []
+    # truths_list = []
+    r_loss = 0.0
+    with torch.no_grad():
+        for step,data in enumerate(data_loader):
+            inputs = data[0].to(device)
+            truths = data[1].to(device)
+            # print((texts.shape))
+            outputs = model(inputs).to(device)
+            validation_loss = criterion(truths, outputs)
+            r_loss += validation_loss
+            # get the label predictions'
+    # preds_tensor = torch.cat(preds_list, dim=0)
+    # truths_tensor = torch.cat(truths_list, dim=0)
+
+    print('validation loss: {:10.4f}'.format(r_loss/(step+1)))
+
+
     end = datetime.datetime.now()
     print('Training finished in {} minutes.'.format((end - start).seconds / 60.0))
     
@@ -79,7 +102,7 @@ def train(model, dataset, batch_size, learning_rate, num_epoch, device='cpu', mo
         'params': {'VERBOSE': VERBOSE, 'LEARNING_RATE': LEARNING_RATE, 'BATCH_SIZE': BATCH_SIZE, 'NUM_EPOCHS': NUM_EPOCHS, 'DROPOUT': DROPOUT}
     }
     # os.makedirs(model_path, exist_ok = True) 
-    torch.save(checkpoint, os.path.join(model_path, '_model.pth'))
+    torch.save(checkpoint, os.path.join(model_path, 'model_{}.pth'.format(datetime.datetime.now().strftime("%H:%M:%S"))))
     print('Model saved in ', model_path)
 
 def get_train_arguments():
