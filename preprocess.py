@@ -106,7 +106,7 @@ def main():
     print(f'saving to: {pcaname}')
     pd.DataFrame(data_for_umap, index=reduced_data.index).to_csv(pcaname)
     # UMAP - def components=2, neigh=15, min_dist=0.1
-    if True: return
+    # if True: return
     print('Performing UMAP')
     umap_data = umap.UMAP(random_state = 4171,
                             n_components=200,

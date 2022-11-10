@@ -10,11 +10,11 @@ from sklearn.decomposition import PCA
 
 def main():
     #loading dataset
-    print('loading metadata')
-    dataset = pd.read_hdf('data/train_cite_inputs.h5') 
-    print('metadata loaded')
-    # Low variance filter - dropping columns with <0.5 variance
     print('loading train inputs')
+    dataset = pd.read_hdf('data/train_cite_inputs.h5') 
+    print('inputs loaded')
+    # Low variance filter - dropping columns with <0.5 variance
+    print('checking variance of columns in inputs')
     variance = dataset.var() # computes variance
     columns = dataset.columns
     variable = [ ]
@@ -25,6 +25,7 @@ def main():
     print('inputs loaded')
 
     # PCA
+    print('Performing PCA from {} features with considerable variance'.format(reduced_data.shape[1]))
     new_pca = PCA(n_components=None)
     pca_data = new_pca.fit_transform(reduced_data)
     ## obtaining PCAs with sum 0.9 variance
@@ -34,6 +35,10 @@ def main():
         if ACC_VAR > 0.9 : 
             break
     data_for_umap = pd.DataFrame(pca_data[:, 0:(i+1)], index=reduced_data.index) 
+    pcaname = 'data/train_cite_inputs_PCA{}.csv'.format(i+1)
+    # saving pca data to csv
+    print(f'saving to: {pcaname}')
+    pd.DataFrame(data_for_umap, index=reduced_data.index).to_csv(pcaname)
     print('Performing UMAP')
 
     # UMAP - def components=2, neigh=15, min_dist=0.1
