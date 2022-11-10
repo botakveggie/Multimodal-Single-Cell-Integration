@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
-import tables
-import hdf5plugin
+import datetime
 
 import umap 
 import sklearn
@@ -18,16 +17,21 @@ def main():
     variance = dataset.var() # computes variance
     columns = dataset.columns
     variable = [ ]
+    start = datetime.datetime.now()
     for i in range(0,len(variance)):
             if variance[i]>= 0.5: #setting the threshold as 0.5
                 variable.append(columns[i])
     reduced_data = dataset[variable] 
-    print('inputs loaded')
-
+    print('informative columns chosen')    
+    end = datetime.datetime.now()
+    print('variance filter finished in {} minutes.'.format((end - start).seconds / 60.0))
     # PCA
     print('Performing PCA from {} features with considerable variance'.format(reduced_data.shape[1]))
+    start = datetime.datetime.now()
     new_pca = PCA(n_components=None)
     pca_data = new_pca.fit_transform(reduced_data)
+    end = datetime.datetime.now()
+    print('PCA finished in {} minutes.'.format((end - start).seconds / 60.0))
     ## obtaining PCAs with sum 0.9 variance
     ACC_VAR = 0
     for i, var in enumerate(new_pca.explained_variance_ratio_):
@@ -39,14 +43,17 @@ def main():
     # saving pca data to csv
     print(f'saving to: {pcaname}')
     pd.DataFrame(data_for_umap, index=reduced_data.index).to_csv(pcaname)
-    print('Performing UMAP')
 
+    print('Performing UMAP')
+    start = datetime.datetime.now()
     # UMAP - def components=2, neigh=15, min_dist=0.1
     umap_data = umap.UMAP(random_state = 4171,
                             n_components=200,
                             n_neighbors=30,
                             min_dist=0.5).fit_transform(data_for_umap) # reduced data for NN
 
+    end = datetime.datetime.now()
+    print('UMAP finished in {} minutes.'.format((end - start).seconds / 60.0))
     res = pd.DataFrame(umap_data, index=reduced_data.index)
     res.to_csv('data/train_cite_inputs_reduced.csv')
     print('UMAP done. saving to: data/train_cite_inputs_reduced.csv')
