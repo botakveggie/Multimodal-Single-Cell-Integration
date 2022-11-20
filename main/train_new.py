@@ -66,8 +66,8 @@ def train(model, dataset, train_set, validation_set, fold, batch_size, learning_
             model.eval()
             data_loader_val = DataLoader(validation_set, batch_size=batch_size, collate_fn=collator, shuffle=False)
             with torch.no_grad():
-                mse = []
-                corr = []
+                mse = 0.0
+                corr = 0.0
                 for step,data in enumerate(data_loader_val):
                     inputs = data[0].to(device)
                     truths = data[1].to(device)
