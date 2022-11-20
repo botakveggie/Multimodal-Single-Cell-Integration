@@ -40,3 +40,22 @@ def collator(batch):
     if targets[0] is not None: # for training, return both texts and batch_targets
         batch_targets = torch.cat([tens.unsqueeze(0) for tens in targets])
     return batch_inputs, batch_targets
+
+
+## pearson correlation loss in pytorch
+# https://www.kaggle.com/code/vslaykovsky/multi-67-cite-89-pytorch-swiss-army-knife 
+class CorrError():
+    def __init__(self, reduction='mean', normalize=True):
+        self.reduction, self.normalize = reduction, normalize
+
+    def __call__(self, y, y_target):
+        y = y - torch.mean(y, dim=1).unsqueeze(1)
+        y_target = y_target - torch.mean(y_target, dim=1).unsqueeze(1)
+        loss = -torch.sum(y * y_target, dim=1) / (y_target.shape[-1] - 1)  # minus because we want gradient ascend
+        if self.normalize:
+            s1 = torch.sqrt(torch.sum(y * y, dim=1) / (y.shape[-1] - 1))
+            s2 = torch.sqrt(torch.sum(y_target * y_target, dim=1) / (y_target.shape[-1] - 1))
+            loss = loss / s1 / s2
+        if self.reduction == 'mean':
+            return torch.mean(loss)
+        return loss
