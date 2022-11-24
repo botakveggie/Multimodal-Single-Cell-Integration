@@ -159,3 +159,4 @@ cython_debug/
 /evaluation_ids.csv
 Untitled**.ipynb
 .DS_Store
+/pre-trained-models
