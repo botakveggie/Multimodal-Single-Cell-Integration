@@ -31,10 +31,9 @@ def train(model, dataset, train_set, validation_set, fold, batch_size, learning_
 
     model.train()
     start = datetime.datetime.now()
-    best_epoch_loss = 1
+    # best_epoch_loss = 1
     for epoch in range(num_epoch):
-        mse = 0.0
-        corr = 0.0
+        loss = 0.0
         ## training one epoch
         for step, data in enumerate(data_loader):
             # get the inputs; data is a tuple of (inputs_tensor, targets_tensor)
@@ -54,33 +53,31 @@ def train(model, dataset, train_set, validation_set, fold, batch_size, learning_
             optimizer.step()
 
             # calculate running loss value
-            corr += CorrError()(y_preds, targets).item()
-            mse += nn.MSELoss()(y_preds, targets).item()
-
+            loss += loss_tensor.item()
+            
         scheduler.step()
         if VERBOSE == 1:
-            print('[Epoch %d, Step %5d] MSE loss: %.5f Corr: %.5f' %
-                (epoch + 1, step + 1, mse/(step + 1), corr/(step + 1)))
+            print('[Epoch %d, Step %5d] Loss: %.5f' %
+                (epoch + 1, step + 1, loss/(step + 1)))
     
-        if CV: # Evaluates one epoch
-            model.eval()
-            data_loader_val = DataLoader(validation_set, batch_size=batch_size, collate_fn=collator, shuffle=False)
-            with torch.no_grad():
-                mse = 0.0
-                corr = 0.0
-                for step,data in enumerate(data_loader_val):
-                    inputs = data[0].to(device)
-                    truths = data[1].to(device)
-                    outputs = model(inputs).to(device)
-                    corr += CorrError()(outputs, truths).item()
-                    mse += nn.MSELoss()(outputs, truths).item()
+    if CV: # Evaluates one epoch
+        model.eval()
+        data_loader_val = DataLoader(validation_set, batch_size=20, collate_fn=collator, shuffle=False)
+        with torch.no_grad():
+            val_loss = 0.0
+            for step,data in enumerate(data_loader_val):
+                inputs = data[0].to(device)
+                truths = data[1].to(device)
+                outputs = model(inputs).to(device)
+                val_loss += criterion(outputs, truths).item()
 
-            print('[validation loss] MSE Loss: {:.4f} Corr: {:.4f}'.format(mse/(step + 1), corr/(step + 1)))
+        print('[validation loss] Loss: {:.5f}'.format(val_loss/(step + 1)))
 
-            score=corr/(step + 1)
-            if score <= best_epoch_loss:
-                print("Validation Loss Improved ({:.5f} -> {:.5f})".format(best_epoch_loss, score))
-                best_epoch_loss = score
+        score=val_loss/(step + 1)
+
+        # if (VERBOSE == 1) & (score <= best_epoch_loss):
+        #     print("Validation Loss Improved ({:.5f} -> {:.5f})".format(best_epoch_loss, score))
+        #     best_epoch_loss = score
 
     end = datetime.datetime.now()
     print('Training finished in {} minutes.'.format((end - start).seconds / 60.0))
