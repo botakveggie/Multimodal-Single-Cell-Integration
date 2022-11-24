@@ -1,14 +1,14 @@
 # Multimodal Single Cell Integration
  ZB4171 Project
 ```
-CITE-seq
+Multimodal Single Cell Integration
 │   README.md
 │   metadata_explore.ipynb
 │   script.ipynb
 |   submit.py
-|   convert.py
 |   preprocess.py
 |   aws_preprocess.py
+|   preprocess_umap.py
 │
 └───main
 │   │   parameters.py
@@ -31,9 +31,14 @@ CITE-seq
 │   │   evaluation_ids.csv
 │   │   target_submission.csv
 |
+└───model
+│   │   model.pth
+|
 └───output
 │   │   preds.csv
 |
+
+
 
 
 ```

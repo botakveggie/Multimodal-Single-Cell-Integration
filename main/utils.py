@@ -45,6 +45,7 @@ def collator(batch):
 ## pearson correlation loss in pytorch
 # https://www.kaggle.com/code/vslaykovsky/multi-67-cite-89-pytorch-swiss-army-knife 
 class CorrError():
+    """ Pearson Correlation Loss Function """
     def __init__(self, reduction='mean', normalize=True):
         self.reduction, self.normalize = reduction, normalize
 

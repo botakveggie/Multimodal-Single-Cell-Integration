@@ -1,9 +1,9 @@
 # set your parameters here
 VERBOSE = 1
-LEARNING_RATE = 0.001
+LEARNING_RATE = 0.0005
 BATCH_SIZE = 50
 NUM_EPOCHS = 30
-DROPOUT = 0.07
+DROPOUT = 0.05
 VAL_FRAC = 0.2
 device_str = 'cpu'
 
