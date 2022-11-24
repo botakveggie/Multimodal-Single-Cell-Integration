@@ -2,15 +2,17 @@
 import datetime
 import argparse
 import os
+import pandas as pd
 
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.optim.lr_scheduler import ExponentialLR
 from torch.utils.data import DataLoader, random_split
 
 from models import CiteDataset, CiteseqModel
-from utils import collator
-from parameters import VERBOSE, LEARNING_RATE, BATCH_SIZE, NUM_EPOCHS, DROPOUT, device_str, VAL_FRAC
+from utils import collator,correlation_score, CorrError
+from parameters import VERBOSE, LEARNING_RATE, BATCH_SIZE, NUM_EPOCHS, DROPOUT, device_str, VAL_FRAC, LOSS
 
 torch.manual_seed(0)
 
@@ -27,7 +29,7 @@ def train(model, dataset, batch_size, learning_rate, num_epoch, device='cpu', mo
     # assign these variables
     criterion=loss_fn()
     optimizer = optim(model.parameters(), lr=learning_rate)
-    # scheduler = ExponentialLR(optimizer, gamma=0.9)
+    scheduler = ExponentialLR(optimizer, gamma=0.9)
 
     # train, validation split?
     # do here
@@ -47,7 +49,7 @@ def train(model, dataset, batch_size, learning_rate, num_epoch, device='cpu', mo
             y_preds = model(inputs.float()).to(device)
 
             # do loss calculation
-            loss_tensor = criterion(input= y_preds, target= targets)
+            loss_tensor = criterion(y_preds, targets)
             # if VERBOSE == 1: print('Loss tensor:\n',loss_tensor)
 
             # do backward propagation
@@ -61,9 +63,9 @@ def train(model, dataset, batch_size, learning_rate, num_epoch, device='cpu', mo
 
             # print loss value every 100 steps and reset the running loss
                 # input()
-        # scheduler.step()
+        scheduler.step()
         if VERBOSE == 1:
-            print('[Epoch %d, Step %5d] MSE loss: %.3f' %
+            print('[Epoch %d, Step %5d] Loss: %.5f' %
                 (epoch + 1, step + 1, running_loss / (step+1)))
             running_loss = 0.0
     
@@ -78,15 +80,18 @@ def train(model, dataset, batch_size, learning_rate, num_epoch, device='cpu', mo
         for step,data in enumerate(data_loader):
             inputs = data[0].to(device)
             truths = data[1].to(device)
-            # print((texts.shape))
             outputs = model(inputs).to(device)
-            validation_loss = criterion(truths, outputs)
+            # preds_list.append(outputs)
+            # truths_list.append(truths)
+            validation_loss = criterion(outputs, truths)
             r_loss += validation_loss
             # get the label predictions'
+    print('validation loss: {:10.4f}'.format(r_loss/(step+1)))
     # preds_tensor = torch.cat(preds_list, dim=0)
     # truths_tensor = torch.cat(truths_list, dim=0)
-
-    print('validation loss: {:10.4f}'.format(r_loss/(step+1)))
+    # corrscore = correlation_score(preds_tensor, truths_tensor)
+    # print('correlation score: {:10.4f}'.format(corrscore))
+    
 
 
     end = datetime.datetime.now()
@@ -102,8 +107,9 @@ def train(model, dataset, batch_size, learning_rate, num_epoch, device='cpu', mo
         'params': {'VERBOSE': VERBOSE, 'LEARNING_RATE': LEARNING_RATE, 'BATCH_SIZE': BATCH_SIZE, 'NUM_EPOCHS': NUM_EPOCHS, 'DROPOUT': DROPOUT}
     }
     # os.makedirs(model_path, exist_ok = True) 
-    torch.save(checkpoint, os.path.join(model_path, 'model_{}.pth'.format(datetime.datetime.now().strftime("%H:%M:%S"))))
-    print('Model saved in ', model_path)
+    # model_path = os.path.join(model_path, 'model_{}.pth'.format(datetime.datetime.now().strftime("%H:%M:%S")))
+    torch.save(checkpoint,model_path)
+    print('Model saved as', model_path)
 
 def get_train_arguments():
     parser = argparse.ArgumentParser()
@@ -126,7 +132,14 @@ def main(args):
     if VERBOSE:
         print(f'Training model for {num_features} features for {NUM_EPOCHS} epochs')
     model = CiteseqModel(num_features, num_targets, DROPOUT)
-    train(model, dataset, BATCH_SIZE ,LEARNING_RATE, NUM_EPOCHS, device_str, args.model_path)
+
+    ## type of loss fn to use
+    if LOSS == "CorrError":
+        loss_fn = CorrError
+        print("Using CorrError as loss fn")
+    else: 
+        loss_fn = nn.MSELoss
+    train(model, dataset, BATCH_SIZE ,LEARNING_RATE, NUM_EPOCHS, device_str, args.model_path, loss_fn)
 
 if __name__=="__main__":
     args = get_train_arguments()
