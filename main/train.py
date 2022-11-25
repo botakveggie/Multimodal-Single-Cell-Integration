@@ -33,11 +33,10 @@ def train(model, dataset, batch_size, learning_rate, num_epoch, device='cpu', mo
     optimizer = optim(model.parameters(), lr=learning_rate)
     scheduler = ExponentialLR(optimizer, gamma=0.9)
     
+    model.train()
     start = datetime.datetime.now()
     for epoch in range(num_epoch):
-        model.train()
         running_loss = 0.0
-
         for step, data in enumerate(data_loader):
             # get the inputs; data is a tuple of (inputs_tensor, targets_tensor)
             inputs = data[0].to(device)
