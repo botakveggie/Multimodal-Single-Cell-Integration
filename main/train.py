@@ -21,6 +21,8 @@ def train(model, dataset, batch_size, learning_rate, num_epoch, device='cpu', mo
     Complete the training procedure below by specifying the loss function
     and optimizers with the specified learning rate and specified number of epoch.
     """
+    
+    # creating train and validation set
     val_size = int(VAL_FRAC * dataset.num_cells)
     train_size = dataset.num_cells - val_size  
     train_set, validation_set = random_split(dataset, [train_size, val_size])
@@ -30,15 +32,11 @@ def train(model, dataset, batch_size, learning_rate, num_epoch, device='cpu', mo
     criterion=loss_fn()
     optimizer = optim(model.parameters(), lr=learning_rate)
     scheduler = ExponentialLR(optimizer, gamma=0.9)
-
-    # train, validation split?
-    # do here
     
+    model.train()
     start = datetime.datetime.now()
     for epoch in range(num_epoch):
-        model.train()
         running_loss = 0.0
-
         for step, data in enumerate(data_loader):
             # get the inputs; data is a tuple of (inputs_tensor, targets_tensor)
             inputs = data[0].to(device)
@@ -50,7 +48,6 @@ def train(model, dataset, batch_size, learning_rate, num_epoch, device='cpu', mo
 
             # do loss calculation
             loss_tensor = criterion(y_preds, targets)
-            # if VERBOSE == 1: print('Loss tensor:\n',loss_tensor)
 
             # do backward propagation
             loss_tensor.backward()
@@ -59,46 +56,31 @@ def train(model, dataset, batch_size, learning_rate, num_epoch, device='cpu', mo
 
             # calculate running loss value
             running_loss += loss_tensor.item()
-            # print('running loss updated to', running_loss)
-
-            # print loss value every 100 steps and reset the running loss
-                # input()
+            
         scheduler.step()
         if VERBOSE == 1:
             print('[Epoch %d, Step %5d] Loss: %.5f' %
                 (epoch + 1, step + 1, running_loss / (step+1)))
             running_loss = 0.0
     
-    # Check correlation score with validation set
-    # correlation_score()
+    # Checking loss with validation set
     model.eval()
     data_loader = DataLoader(validation_set, batch_size=20, collate_fn=collator, shuffle=False)
-    # preds_list = []
-    # truths_list = []
     r_loss = 0.0
     with torch.no_grad():
         for step,data in enumerate(data_loader):
             inputs = data[0].to(device)
             truths = data[1].to(device)
             outputs = model(inputs).to(device)
-            # preds_list.append(outputs)
-            # truths_list.append(truths)
             validation_loss = criterion(outputs, truths)
             r_loss += validation_loss
-            # get the label predictions'
-    print('validation loss: {:10.4f}'.format(r_loss/(step+1)))
-    # preds_tensor = torch.cat(preds_list, dim=0)
-    # truths_tensor = torch.cat(truths_list, dim=0)
-    # corrscore = correlation_score(preds_tensor, truths_tensor)
-    # print('correlation score: {:10.4f}'.format(corrscore))
-    
+    print('validation loss: {:10.4f}'.format(r_loss/(step+1)))   
 
 
     end = datetime.datetime.now()
     print('Training finished in {} minutes.'.format((end - start).seconds / 60.0))
     
-    # define the checkpoint and save it to the model path
-    # tip: the checkpoint can contain more than just the model
+    # saving model
     checkpoint = {
         'epoch':epoch,
         'model_state_dict': model.state_dict(),
@@ -106,8 +88,7 @@ def train(model, dataset, batch_size, learning_rate, num_epoch, device='cpu', mo
         'protein_ids': dataset.protein_ids,
         'params': {'VERBOSE': VERBOSE, 'LEARNING_RATE': LEARNING_RATE, 'BATCH_SIZE': BATCH_SIZE, 'NUM_EPOCHS': NUM_EPOCHS, 'DROPOUT': DROPOUT}
     }
-    # os.makedirs(model_path, exist_ok = True) 
-    # model_path = os.path.join(model_path, 'model_{}.pth'.format(datetime.datetime.now().strftime("%H:%M:%S")))
+    
     torch.save(checkpoint,model_path)
     print('Model saved as', model_path)
 
