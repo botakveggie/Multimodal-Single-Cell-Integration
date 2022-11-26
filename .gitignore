@@ -163,3 +163,4 @@ Untitled**.ipynb
 test_**.csv
 *.gz
 *.tsv
+/output
