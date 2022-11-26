@@ -29,28 +29,28 @@ def convert():
 
     # reading in test set
     ## RNA (inputs)
-    # print("reading datasets")
-    # rna = sc.read_text("gse/rna.tsv.gz")
-    # rna_meta = pd.read_csv("gse/rna_meta.tsv", sep="\t", index_col=0)
-    # rna.var = rna_meta
+    print("reading datasets")
+    rna = sc.read_text("gse/rna.tsv.gz")
+    rna_meta = pd.read_csv("gse/rna_meta.tsv", sep="\t", index_col=0)
+    rna.var = rna_meta
 
-    # rna_data = rna.to_df()
-    # rna_data = pd.DataFrame.transpose(rna_data)
+    rna_data = rna.to_df()
+    rna_data = pd.DataFrame.transpose(rna_data)
     
     ### storing full set 
     print("saving rna data")
-    # rna_data.to_csv('gse/test_inputs_full.csv')
+    rna_data.to_csv('gse/test_inputs_full.csv')
 
     ### obtaining same genes used
-    # gene = list(rna.obs_names) # gene ids in gse
-    # valid = []
-    # for i in gene_id:
-    #     if i in gene:
-    #         j = gene.index(i)
-    #         valid.append(j)
+    gene = list(rna.obs_names) # gene ids in gse
+    valid = []
+    for i in gene_id:
+        if i in gene:
+            j = gene.index(i)
+            valid.append(j)
     
-    # rna_data = rna_data.iloc[:,valid]
-    # rna_data.to_csv('gse/test_inputs_sub.csv')
+    rna_data = rna_data.iloc[:,valid]
+    rna_data.to_csv('gse/test_inputs_sub.csv')
     
     ## ADT (target)
     print("adt")
@@ -77,24 +77,24 @@ def convert():
 def main():
     convert()
     # using the full one
-    # full_rna = pd.read_csv('gse/test_inputs_full.csv', index_col=0)
-    # full_rna = variance(full_rna)
-    # full_rna = red_pca(full_rna)
-    # full_rna_200301 = red_umap(full_rna, 200, 30, 1)
-    # full_rna_240501 = red_umap(full_rna, 240, 50, 1)
+    full_rna = pd.read_csv('gse/test_inputs_full.csv', index_col=0)
+    full_rna = variance(full_rna)
+    full_rna = red_pca(full_rna)
+    full_rna_200301 = red_umap(full_rna, 200, 30, 1)
+    full_rna_240501 = red_umap(full_rna, 240, 50, 1)
     
-    # full_rna_200301.to_csv("gse/test_full_inputs_200301.csv")
-    # full_rna_240501.to_csv("gse/test_full_inputs_240501.csv")
+    full_rna_200301.to_csv("gse/test_full_inputs_200301.csv")
+    full_rna_240501.to_csv("gse/test_full_inputs_240501.csv")
 
     # using reduced data
-    # rna = pd.read_csv('gse/test_inputs_sub.csv', index_col=0)
-    # rna = variance(rna)
-    # rna = red_pca(rna)
-    # rna_200301 = red_umap(rna, 200, 30, 1)
-    # rna_240501 = red_umap(rna, 240, 50, 1)
+    rna = pd.read_csv('gse/test_inputs_sub.csv', index_col=0)
+    rna = variance(rna)
+    rna = red_pca(rna)
+    rna_200301 = red_umap(rna, 200, 30, 1)
+    rna_240501 = red_umap(rna, 240, 50, 1)
     
-    # rna_200301.to_csv("gse/test_red_inputs_200301.csv")
-    # rna_240501.to_csv("gse/test_red_inputs_240501.csv")
+    rna_200301.to_csv("gse/test_red_inputs_200301.csv")
+    rna_240501.to_csv("gse/test_red_inputs_240501.csv")
 
 
 if __name__=="__main__":
