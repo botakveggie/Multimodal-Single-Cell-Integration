@@ -160,5 +160,6 @@ cython_debug/
 Untitled**.ipynb
 .DS_Store
 /model
-/gse
-train_final.py
+test_**.csv
+*.gz
+*.tsv
