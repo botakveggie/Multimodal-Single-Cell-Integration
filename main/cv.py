@@ -59,7 +59,7 @@ def train(model, dataset, train_set, validation_set, fold, batch_size, learning_
             print('[Epoch %d, Step %5d] Loss: %.5f' %
                 (epoch + 1, step + 1, loss/(step + 1)))
     
-    if CV: # Evaluates one epoch
+    if CV: # Evaluating the model
         model.eval()
         data_loader_val = DataLoader(validation_set, batch_size=20, collate_fn=collator, shuffle=False)
         with torch.no_grad():
@@ -74,15 +74,10 @@ def train(model, dataset, train_set, validation_set, fold, batch_size, learning_
 
         score=val_loss/(step + 1)
 
-        # if (VERBOSE == 1) & (score <= best_epoch_loss):
-        #     print("Validation Loss Improved ({:.5f} -> {:.5f})".format(best_epoch_loss, score))
-        #     best_epoch_loss = score
-
     end = datetime.datetime.now()
     print('Training finished in {} minutes.'.format((end - start).seconds / 60.0))
     
-    # define the checkpoint and save it to the model path
-    # tip: the checkpoint can contain more than just the model
+    # saving model
     checkpoint = {
         'epoch':epoch,
         'model_state_dict': model.state_dict(),
@@ -99,6 +94,7 @@ def train(model, dataset, train_set, validation_set, fold, batch_size, learning_
         return score
 
 def kfold_split(dataset, fold=FOLD):
+    """ does k-fold split to the dataset """
     fold_sizes = [len(dataset) // fold] * (fold - 1) + [len(dataset) // fold + len(dataset) % fold]
     dataset_folds = torch.utils.data.random_split(dataset, fold_sizes, generator=torch.Generator().manual_seed(42))
     for fold in range(fold):
