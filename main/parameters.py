@@ -1,8 +1,14 @@
 # set your parameters here
 VERBOSE = 1
-LEARNING_RATE = 0.001
-BATCH_SIZE = 750
-NUM_EPOCHS = 5
-DROPOUT = 0.01
-VAL_FRAC = 0.2
+LEARNING_RATE = 0.0005
+BATCH_SIZE = 50
+NUM_EPOCHS = 25
+DROPOUT = 0.05
+VAL_FRAC = 0.2  # 0 to train with all data
 device_str = 'cpu'
+
+LOSS = "CorrError"  # insert "CorrError" for correlation loss function
+
+## do cross validation; set CV to 1; 0 to train with all data
+CV = 1
+FOLD = 5

@@ -159,4 +159,18 @@ cython_debug/
 /evaluation_ids.csv
 Untitled**.ipynb
 .DS_Store
+test_**.csv
+*.gz
+*.tsv
+/output
+*.h5ad
+
+# xian
+/data1
+/output
+/submission
+/GSE160251
+train_final.py
+/gse1
+/.sh
 /pre-trained-models

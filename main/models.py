@@ -126,9 +126,9 @@ class RelativeEncoder(nn.Module):
     """
     def __init__(self, num_features: int, dropout: float):
         super().__init__()
-        num_out = round(num_features/4)
+        num_out = round(num_features/2)
         self.l0 = FCBlock(num_features, num_out, dropout)
-        num_features, num_out = num_out, round(num_out/4)
+        num_features, num_out = num_out, round(num_out/2)
         self.l1 = FCBlock(num_features, num_out, dropout)
         num_features = num_out
         self.l2 = FCBlock(num_features, 30, dropout)

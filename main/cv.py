@@ -1,43 +1,39 @@
-# python3 main/train.py --inputs_path data/train_cite_inputs_reduced.csv --targets_path data/train_cite_targets_reduced.csv --model_path ./pre-trained-models
 import datetime
 import argparse
 import os
-import pandas as pd
+import numpy as np
 
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.utils.data import DataLoader
 from torch.optim.lr_scheduler import ExponentialLR
 from torch.utils.data import DataLoader, random_split
 
 from models import CiteDataset, CiteseqModel
 from utils import collator, CorrError
-from parameters import VERBOSE, LEARNING_RATE, BATCH_SIZE, NUM_EPOCHS, DROPOUT, device_str, VAL_FRAC, LOSS
+from parameters import VERBOSE, LEARNING_RATE, BATCH_SIZE, NUM_EPOCHS, DROPOUT, device_str, VAL_FRAC, FOLD, LOSS, CV
 
 torch.manual_seed(0)
 
-def train(model, dataset, batch_size, learning_rate, num_epoch, device='cpu', model_path=None, loss_fn=nn.MSELoss, optim = optim.Adam):
+def train(model, dataset, train_set, validation_set, fold, batch_size, learning_rate, num_epoch, device='cpu', model_path=None, loss_fn=nn.MSELoss, optim = optim.Adam):
     """
     Complete the training procedure below by specifying the loss function
     and optimizers with the specified learning rate and specified number of epoch.
-    Specify VAL_FRAC to do hold-out validation.
+    Specify CV & FOLD to do k-fold cross validation.
     """
-    
-    # creating train and test set
-    val_size = int(VAL_FRAC * dataset.num_cells)
-    train_size = dataset.num_cells - val_size  
-    train_set, test_set = random_split(dataset, [train_size, val_size])
     data_loader = DataLoader(train_set, batch_size=batch_size, collate_fn=collator, shuffle=True)
-    
+
     # assign these variables
     criterion=loss_fn()
     optimizer = optim(model.parameters(), lr=learning_rate)
     scheduler = ExponentialLR(optimizer, gamma=0.9)
-    
+
     model.train()
     start = datetime.datetime.now()
     for epoch in range(num_epoch):
-        running_loss = 0.0
+        loss = 0.0
+        ## training one epoch
         for step, data in enumerate(data_loader):
             # get the inputs; data is a tuple of (inputs_tensor, targets_tensor)
             inputs = data[0].to(device)
@@ -56,27 +52,27 @@ def train(model, dataset, batch_size, learning_rate, num_epoch, device='cpu', mo
             optimizer.step()
 
             # calculate running loss value
-            running_loss += loss_tensor.item()
+            loss += loss_tensor.item()
             
         scheduler.step()
         if VERBOSE == 1:
             print('[Epoch %d, Step %5d] Loss: %.5f' %
-                (epoch + 1, step + 1, running_loss / (step+1)))
-            running_loss = 0.0
+                (epoch + 1, step + 1, loss/(step + 1)))
     
-    # Checking loss with test set
-    model.eval()
-    data_loader = DataLoader(test_set, batch_size=20, collate_fn=collator, shuffle=False)
-    r_loss = 0.0
-    with torch.no_grad():
-        for step,data in enumerate(data_loader):
-            inputs = data[0].to(device)
-            truths = data[1].to(device)
-            outputs = model(inputs).to(device)
-            test_loss = criterion(outputs, truths)
-            r_loss += test_loss
-    print('Test Score: {:10.4f}'.format(r_loss/(step+1)))   
+    if CV: # Evaluating the model
+        model.eval()
+        data_loader_val = DataLoader(validation_set, batch_size=20, collate_fn=collator, shuffle=False)
+        with torch.no_grad():
+            val_loss = 0.0
+            for step,data in enumerate(data_loader_val):
+                inputs = data[0].to(device)
+                truths = data[1].to(device)
+                outputs = model(inputs).to(device)
+                val_loss += criterion(outputs, truths).item()
 
+        print('[validation loss] Loss: {:.5f}'.format(val_loss/(step + 1)))
+
+        score=val_loss/(step + 1)
 
     end = datetime.datetime.now()
     print('Training finished in {} minutes.'.format((end - start).seconds / 60.0))
@@ -90,8 +86,19 @@ def train(model, dataset, batch_size, learning_rate, num_epoch, device='cpu', mo
         'params': {'VERBOSE': VERBOSE, 'LEARNING_RATE': LEARNING_RATE, 'BATCH_SIZE': BATCH_SIZE, 'NUM_EPOCHS': NUM_EPOCHS, 'DROPOUT': DROPOUT}
     }
     
+    model_path = os.path.join(model_path, f"model_f{fold+1}.pth")
     torch.save(checkpoint, model_path)
-    print('Model saved as', model_path)
+    print('Model saved in ', model_path)
+    
+    if CV:
+        return score
+
+def kfold_split(dataset, fold=FOLD):
+    """ does k-fold split to the dataset """
+    fold_sizes = [len(dataset) // fold] * (fold - 1) + [len(dataset) // fold + len(dataset) % fold]
+    dataset_folds = torch.utils.data.random_split(dataset, fold_sizes, generator=torch.Generator().manual_seed(42))
+    for fold in range(fold):
+        yield torch.utils.data.ConcatDataset(dataset_folds[:fold] + dataset_folds[fold + 1:]), dataset_folds[fold]
 
 def get_train_arguments():
     parser = argparse.ArgumentParser()
@@ -109,19 +116,36 @@ def main(args):
         device_str = 'cuda'
     assert args.inputs_path is not None, "Please provide the inputs file using the --inputs_path argument"
     assert args.targets_path is not None, "Please provide the targets file using the --targets_path argument"
+    epoch = NUM_EPOCHS    
+    ## init dataset
     dataset = CiteDataset(args.inputs_path, args.targets_path)
     num_features, num_targets = dataset.data_size()
     if VERBOSE:
         print(f'Training model for {num_features} features for {NUM_EPOCHS} epochs')
-    model = CiteseqModel(num_features, num_targets, DROPOUT)
 
     ## type of loss fn to use
     if LOSS == "CorrError":
         loss_fn = CorrError
-        print("Using CorrError as loss fn")
-    else: 
-        loss_fn = nn.MSELoss
-    train(model, dataset, BATCH_SIZE ,LEARNING_RATE, NUM_EPOCHS, device_str, args.model_path, loss_fn)
+
+    # cross validation
+    if CV:
+        # creating train and test set
+        val_size = int(VAL_FRAC * dataset.num_cells)
+        train_size = dataset.num_cells - val_size  
+        train_set, test_set = random_split(dataset, [train_size, val_size])
+
+        # using only train set for training
+        scores = []
+        for fold, (ds_train, ds_eval) in enumerate (kfold_split(train_set)):
+            print("Fold: ", fold+1)
+            ## init model
+            model = CiteseqModel(num_features, num_targets, DROPOUT)
+            score = train(model, dataset, ds_train, ds_eval, fold, BATCH_SIZE ,LEARNING_RATE, epoch, device_str, args.model_path, loss_fn)
+            scores.append(score)
+        print('CV score:', -np.mean(scores))
+    else: # train full model
+        model = CiteseqModel(num_features, num_targets, DROPOUT)
+        train(model, dataset, dataset, None , -2, BATCH_SIZE ,LEARNING_RATE, epoch, device_str, args.model_path, loss_fn)
 
 if __name__=="__main__":
     args = get_train_arguments()
