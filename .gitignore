@@ -173,3 +173,4 @@ test_**.csv
 train_final.py
 /gse1
 /.sh
+/pre-trained-models
