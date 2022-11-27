@@ -158,3 +158,13 @@ cython_debug/
 /.ignore
 /evaluation_ids.csv
 Untitled**.ipynb
+
+# xian
+/data1
+*model**.pth
+/output
+/submission
+/GSE160251
+script.R
+/gse
+train_final.py
