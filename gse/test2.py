@@ -57,7 +57,7 @@ def convert():
         if i in adt_names:
             j = adt_names.index(i)
             valid.append(j)
-
+    print(len(valid))
     adt = adt.iloc[:,valid]
     print ("saving adt data")
     adt.to_csv('gse/test_targets2.csv')
