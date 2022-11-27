@@ -129,8 +129,13 @@ def main(args):
 
     # cross validation
     if CV:
+        # creating train and test set
+        val_size = int(VAL_FRAC * dataset.num_cells)
+        train_size = dataset.num_cells - val_size  
+        train_set, validation_set = random_split(dataset, [train_size, val_size])
+
         scores = []
-        for fold, (ds_train, ds_eval) in enumerate (kfold_split(dataset)):
+        for fold, (ds_train, ds_eval) in enumerate (kfold_split(train_set)):
             print("Fold: ", fold+1)
             ## init model
             model = CiteseqModel(num_features, num_targets, DROPOUT)
