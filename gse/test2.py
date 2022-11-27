@@ -31,6 +31,7 @@ def convert():
     rna_names = adata.var[adata.var["feature_types"] == "GEX"].index
     rna = adata.X[:, :13953]
     rna = pd.DataFrame(rna.toarray(), index=adata.obs_names, columns=rna_names)
+    rna = rna.sample(70000, random_state=4171)
     
     ### storing full set 
     print("saving rna data")
@@ -50,6 +51,7 @@ def convert():
     adt_names = adata.var[adata.var["feature_types"] == "ADT"].index
     adt = adata.X[:, 13953:]
     adt = pd.DataFrame(adt.toarray(), index=adata.obs_names, columns=adt_names)
+    adt = adt.sample(70000, random_state=4171)
 
     valid = []
     for i in protein_id:
@@ -65,6 +67,7 @@ def main():
     convert()
     # using the full one
     full_rna = pd.read_csv('gse/test_inputs_full2.csv', index_col=0)
+
     full_rna = variance(full_rna)
     full_rna = red_pca(full_rna)
     full_rna_200301 = red_umap(full_rna, 200, 30, 1)
