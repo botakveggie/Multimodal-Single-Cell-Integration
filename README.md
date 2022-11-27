@@ -11,10 +11,10 @@ Multimodal-Single-Cell-Integration
 |   script.ipynb            # exploring feature reductions
 |
 └───preprocess
-|   aws_preprocess.py       # preprocessing for full data
-|   preprocess.py           # preprocessing for subset of data
-|   preprocess_umap.py      
-|   preprocess_utils.py     
+|   |    aws_preprocess.py   # preprocessing for full data
+|   |    preprocess.py       # preprocessing for subset of data
+|   |    preprocess_umap.py      
+|   |    preprocess_utils.py     
 |  
 └───main  
 |   |   train.py            # does hold-out train/test split
