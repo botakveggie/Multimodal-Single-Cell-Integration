@@ -11,7 +11,7 @@ from torch.optim.lr_scheduler import ExponentialLR
 from torch.utils.data import DataLoader, random_split
 
 from models import CiteDataset, CiteseqModel
-from utils import collator,correlation_score, CorrError
+from utils import collator, CorrError
 from parameters import VERBOSE, LEARNING_RATE, BATCH_SIZE, NUM_EPOCHS, DROPOUT, device_str, VAL_FRAC, FOLD, LOSS, CV
 
 torch.manual_seed(0)
