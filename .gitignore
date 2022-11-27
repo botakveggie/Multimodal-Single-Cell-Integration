@@ -163,6 +163,7 @@ test_**.csv
 *.gz
 *.tsv
 /output
+*.h5ad
 
 # xian
 /data1
