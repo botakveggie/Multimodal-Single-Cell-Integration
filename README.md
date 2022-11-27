@@ -1,5 +1,13 @@
 # Multimodal Single Cell Integration
- ZB4171 Project
+**ZB4171 Project (2022)**
+
+Using CITE-seq data, this project aims to use encoder-decoder neural network to model the complex assocation between transcriptomics and proteomics and make meaningful predictions of surface protein levels with gene expression levels.
+
+The method consists of 2 main components: 
+1. Feature preprocessing using low variance filtering, PCA and UMAP - `preprocess/`
+2. Encoder-decoder NN using PyTorch - `main/`
+
+*Disclosure: The project is adapted from Kaggle Competition: Open Problems - Multimodal Single-Cell Integration (Predict how DNA, RNA & protein measurements co-vary in single cells) Part of the codes are from the publicly shared kaggle codes*
 
 ## Downloading data used
 Data used for the training of model can be accessed on https://www.kaggle.com/competitions/open-problems-multimodal/data
