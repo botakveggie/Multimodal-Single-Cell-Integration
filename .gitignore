@@ -166,7 +166,6 @@ test_**.csv
 
 # xian
 /data1
-*model**.pth
 /output
 /submission
 /GSE160251
