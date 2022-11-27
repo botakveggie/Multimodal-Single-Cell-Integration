@@ -159,7 +159,6 @@ cython_debug/
 /evaluation_ids.csv
 Untitled**.ipynb
 .DS_Store
-/model
 test_**.csv
 *.gz
 *.tsv
