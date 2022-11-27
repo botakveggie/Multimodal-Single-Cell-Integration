@@ -35,7 +35,7 @@ def convert():
     rna = pd.DataFrame(rna.toarray(), index=adata.obs_names, columns=rna_names)
     rna = rna.sample(70000, random_state=4171)
     
-    pca = pca(variance(rna))
+    pca = red_pca(variance(rna))
 
     ### storing full set 
     print("saving rna data")
@@ -57,7 +57,7 @@ def convert():
             valid.append(i)
     
     rna = rna.loc[:,valid]
-    pca = pca(variance(rna))
+    pca = red_pca(variance(rna))
     # rna.to_csv('gse/test_inputs_sub2.csv')
     pca.to_csv('gse/test_inputs_pca2.csv')
 
