@@ -40,7 +40,7 @@ def red_pca(reduced_data):
     ACC_VAR = 0
     for i, var in enumerate(new_pca.explained_variance_ratio_):
         ACC_VAR+=var
-        if ACC_VAR > 0.9 : 
+        if ACC_VAR > 1 : 
             break
     data_for_umap = pd.DataFrame(pca_data[:, 0:(i+1)], index=reduced_data.index) 
     
