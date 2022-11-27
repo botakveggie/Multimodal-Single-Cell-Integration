@@ -1,17 +1,17 @@
 echo "training model with different parameters"
 
 echo "by components"
-echo "running with umap 200 50 1"
-python3 ./main/cv.py --inputs_path 'data/train_cite_inputs_umap200501.csv' --targets_path 'data/train_cite_targets.csv' --model_path 'model'
+echo "running with umap 200 30 1"
+python3 ./main/cv.py --inputs_path 'data/train_cite_inputs_umap200301.csv' --targets_path 'data/train_cite_targets.csv' --model_path 'model'
 
 echo "running with umap 240 50 1"
 python3 ./main/cv.py --inputs_path 'data/train_cite_inputs_umap240501.csv' --targets_path 'data/train_cite_targets.csv' --model_path 'model'
 
-echo "running with umap 300 50 1"
-python3 ./main/cv.py --inputs_path 'data/train_cite_inputs_umap300501.csv' --targets_path 'data/train_cite_targets.csv' --model_path 'model'
+echo "running with umap 200 50 1"
+python3 ./main/cv.py --inputs_path 'data/train_cite_inputs_umap200501.csv' --targets_path 'data/train_cite_targets.csv' --model_path 'model'
 
-echo "running with umap 400 50 1"
-python3 ./main/cv.py --inputs_path 'data/train_cite_inputs_umap400501.csv' --targets_path 'data/train_cite_targets.csv' --model_path 'model'
+#echo "running with umap 400 50 1"
+#python3 ./main/cv.py --inputs_path 'data/train_cite_inputs_umap400501.csv' --targets_path 'data/train_cite_targets.csv' --model_path 'model'
 
 
 #echo "by neighbours"

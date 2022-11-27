@@ -2,13 +2,13 @@
 VERBOSE = 1
 LEARNING_RATE = 0.0005
 BATCH_SIZE = 50
-NUM_EPOCHS = 25
+NUM_EPOCHS = 30
 DROPOUT = 0.05
-VAL_FRAC = 0.0  # 0 to train with all data
+VAL_FRAC = 0.2  # 0 to train with all data
 device_str = 'cpu'
 
 LOSS = "CorrError"  # insert "CorrError" for correlation loss function
 
 ## do cross validation; set CV to 1; 0 to train with all data
-CV = 0
+CV = 1
 FOLD = 5

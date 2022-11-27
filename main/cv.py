@@ -116,7 +116,7 @@ def main(args):
         device_str = 'cuda'
     assert args.inputs_path is not None, "Please provide the inputs file using the --inputs_path argument"
     assert args.targets_path is not None, "Please provide the targets file using the --targets_path argument"
-    
+    epoch = NUM_EPOCHS    
     ## init dataset
     dataset = CiteDataset(args.inputs_path, args.targets_path)
     num_features, num_targets = dataset.data_size()
@@ -139,12 +139,12 @@ def main(args):
             print("Fold: ", fold+1)
             ## init model
             model = CiteseqModel(num_features, num_targets, DROPOUT)
-            score = train(model, dataset, ds_train, ds_eval, fold, BATCH_SIZE ,LEARNING_RATE, NUM_EPOCHS, device_str, args.model_path, loss_fn)
+            score = train(model, dataset, ds_train, ds_eval, fold, BATCH_SIZE ,LEARNING_RATE, epoch, device_str, args.model_path, loss_fn)
             scores.append(score)
         print('CV score:', -np.mean(scores))
     else: # train full model
         model = CiteseqModel(num_features, num_targets, DROPOUT)
-        train(model, dataset, dataset, None , 'inal', BATCH_SIZE ,LEARNING_RATE, NUM_EPOCHS, device_str, args.model_path, loss_fn)
+        train(model, dataset, dataset, None , 'inal', BATCH_SIZE ,LEARNING_RATE, epoch, device_str, args.model_path, loss_fn)
 
 if __name__=="__main__":
     args = get_train_arguments()
