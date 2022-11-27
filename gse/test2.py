@@ -40,10 +40,9 @@ def convert():
     valid = []
     for i in gene_id:
         if i in rna_names:
-            j = rna_names.index(i)
-            valid.append(j)
+            valid.append(i)
     
-    rna = rna.iloc[:,valid]
+    rna = rna.loc[:,valid]
     rna.to_csv('gse/test_inputs_sub2.csv')
 
     ## ADT (target)
@@ -55,10 +54,9 @@ def convert():
     valid = []
     for i in protein_id:
         if i in adt_names:
-            j = adt_names.index(i)
-            valid.append(j)
+            valid.append(i)
     print(len(valid))
-    adt = adt.iloc[:,valid]
+    adt = adt.loc[:,valid]
     print ("saving adt data")
     adt.to_csv('gse/test_targets2.csv')
     print("done")
