@@ -30,7 +30,7 @@ def convert():
     ## RNA (inputs)
     rna_names = adata.var[adata.var["feature_types"] == "GEX"].index
     rna = adata.X[:, :13953]
-    rna = pd.DataFrame.sparse.from_spmatrix(rna, index=adata.obs_names, columns=rna_names)
+    rna = pd.DataFrame(rna.toarray(), index=adata.obs_names, columns=rna_names)
     
     ### storing full set 
     print("saving rna data")
@@ -50,7 +50,7 @@ def convert():
     print("adt")
     adt_names = adata.var[adata.var["feature_types"] == "ADT"].index
     adt = adata.X[:, 13953:]
-    adt = pd.DataFrame.sparse.from_spmatrix(adt, index=adata.obs_names, columns=adt_names)
+    adt = pd.DataFrame(adt.toarray(), index=adata.obs_names, columns=adt_names)
 
     valid = []
     for i in protein_id:
