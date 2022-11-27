@@ -164,3 +164,11 @@ test_**.csv
 *.gz
 *.tsv
 /output
+
+# xian
+/data1
+*model**.pth
+/output
+/submission
+/GSE160251
+train_final.py

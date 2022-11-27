@@ -56,8 +56,8 @@ def main():
     print('Performing UMAP')
     start = datetime.datetime.now()
     umap_data = umap.UMAP(random_state = 4171,
-                            n_components=240,
-                            n_neighbors=50,
+                            n_components=200,
+                            n_neighbors=30,
                             min_dist=1,
                             n_epochs=200,
                             spread=2).fit_transform(data_for_umap) # reduced data for NN

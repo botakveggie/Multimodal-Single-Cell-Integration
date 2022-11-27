@@ -21,10 +21,9 @@ def get_predictions(model, dataset: CiteDataset, device='cpu'):
     with torch.no_grad():
         for _,data in enumerate(data_loader):
             inputs = data[0].to(device)
-            # print((texts.shape))
             outputs = model(inputs).to(device)
             preds_list.append(outputs)
-            # get the label predictions'
+
     preds_tensor = torch.cat(preds_list, dim=0)
     preds = pd.DataFrame(preds_tensor, columns=dataset.protein_ids, index=dataset.cell_ids)
     return preds
@@ -37,9 +36,6 @@ def get_test_arguments():
     return parser.parse_args()
 
 def main(args):
-    # if args.hasattr('device_str'): 
-    #     device_str = args.device_str # uses gpu if device is specified
-    #     print('Using gpu:', device_str)
     assert args.inputs_path is not None, "Please provide the inputs file using the --inputs_path argument"
     assert args.model_path is not None, "Please provide the model to test using --model_path argument"
     checkpoint = torch.load(args.model_path)    

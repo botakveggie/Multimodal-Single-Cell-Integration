@@ -20,6 +20,7 @@ def train(model, dataset, batch_size, learning_rate, num_epoch, device='cpu', mo
     """
     Complete the training procedure below by specifying the loss function
     and optimizers with the specified learning rate and specified number of epoch.
+    Specify VAL_FRAC to do hold-out validation.
     """
     
     # creating train and validation set

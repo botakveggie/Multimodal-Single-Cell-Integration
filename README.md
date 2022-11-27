@@ -1,26 +1,33 @@
 # Multimodal Single Cell Integration
  ZB4171 Project
 
-Model is stored in main.
+Data used for the training of model can be accessed on https://www.kaggle.com/competitions/open-problems-multimodal/data
 
-Folder organisation
+## Folder organisation
 ```
 Multimodal-Single-Cell-Integration
 │   README.md
 │   metadata_explore.ipynb  # exploring data
 |   script.ipynb            # exploring feature reductions
 |
+└───preprocess
 |   aws_preprocess.py       # preprocessing for full data
 |   preprocess.py           # preprocessing for subset of data
 |   preprocess_umap.py      # only umap
 |  
-└───main  #
+└───main  
 |   |   train.py            # does hold-out validation
 |   |   cv.py               # cross validation
 |   |   parameters.py
 |   |   models.py
 |   |   utils.py
-|   |   get_predictions.py
+|   |   get_predictions.py 
+|   |   notebook.ipynb      # exploring NN model
+│
+└───gse
+│   │   test.py
+│   │   get_score.py
+│   │   preprocess_utils.py
 │
 └───metadata
 │   │   metadata_cite_day_2_donor_27678.csv
@@ -33,11 +40,11 @@ Multimodal-Single-Cell-Integration
 │   │   train_cite_inputs_reduced.csv
 |
 └───model
-│   │   model_final.pth
+│   │   
 |
 └──output
 │   │   
-|
+
 
 
 ```

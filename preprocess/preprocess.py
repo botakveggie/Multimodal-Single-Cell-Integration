@@ -72,7 +72,6 @@ def main():
         f.close() 
     else: 
         f = pd.read_hdf("data/train_cite_targets.h5")
-        protein_id = list(f.columns)
         df_cite_target = f[row_indexes]
     print('targets loaded')
 
@@ -110,8 +109,10 @@ def main():
     print('Performing UMAP')
     umap_data = umap.UMAP(random_state = 4171,
                             n_components=200,
-                            n_neighbors=50,
-                            min_dist=0.5).fit_transform(data_for_umap) # reduced data for NN
+                            n_neighbors=30,
+                            min_dist=1,
+                            n_epochs=200,
+                            spread=2).fit_transform(data_for_umap) # reduced data for NN
 
     # saving umap data to csv
     print('UMAP done. saving to: data/train_cite_inputs_reduced.csv')

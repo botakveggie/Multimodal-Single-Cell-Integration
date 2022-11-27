@@ -20,6 +20,7 @@ def train(model, dataset, train_set, validation_set, fold, batch_size, learning_
     """
     Complete the training procedure below by specifying the loss function
     and optimizers with the specified learning rate and specified number of epoch.
+    Specify CV & FOLD to do k-fold cross validation.
     """
     data_loader = DataLoader(train_set, batch_size=batch_size, collate_fn=collator, shuffle=True)
 

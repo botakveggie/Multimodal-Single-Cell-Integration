@@ -7,10 +7,6 @@ import torch.nn as nn
 
 torch.manual_seed(0)
 
-def mse_criterion(outputs, labels):
-    """ MSE Loss function"""
-    return nn.MSELoss()(outputs, labels)
-
 def correlation_score(y_true, y_pred):
     """
     Scores the predictions according to the competition rules. 
