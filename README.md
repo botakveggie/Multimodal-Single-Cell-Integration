@@ -13,21 +13,17 @@ Multimodal-Single-Cell-Integration
 └───preprocess
 |   aws_preprocess.py       # preprocessing for full data
 |   preprocess.py           # preprocessing for subset of data
-|   preprocess_umap.py      # only umap
+|   preprocess_umap.py      
+|   preprocess_utils.py     
 |  
 └───main  
-|   |   train.py            # does hold-out validation
+|   |   train.py            # does hold-out train/test split
 |   |   cv.py               # cross validation
 |   |   parameters.py
 |   |   models.py
 |   |   utils.py
 |   |   get_predictions.py 
 |   |   notebook.ipynb      # exploring NN model
-│
-└───gse
-│   │   test.py
-│   │   get_score.py
-│   │   preprocess_utils.py
 │
 └───metadata
 │   │   metadata_cite_day_2_donor_27678.csv
@@ -40,12 +36,17 @@ Multimodal-Single-Cell-Integration
 │   │   train_cite_inputs_reduced.csv
 |
 └───model
-│   │   model_200301_final.pth     # final model used
-│   │   model_240501_final_30.pth
-|
-└──output
-│   │   
+│   │   model_200501_final.pth     # final model used
+```
 
+## Example of using the code
+```
+# preprocessing of data
+python3 preprocess/aws_preprocess.py
 
+# training data
+python3 main/train.py --inputs_path "data/train_cite_inputs_reduced.csv" --targets_path "data/train_cite_targets.csv" --model "model/model.pth"
 
+# getting prediction
+python3 main/get_predictions.py --inputs_path "data/train_cite_inputs_reduced.csv" --model "model/model.pth" --outputs_path "outputs/outputs.csv" 
 ```

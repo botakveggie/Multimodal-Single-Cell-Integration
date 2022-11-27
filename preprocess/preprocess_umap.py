@@ -22,7 +22,7 @@ def get_train_arguments():
     parser.add_argument('--inputs_path', help='path to the inputs file')
     parser.add_argument('--outputs_path', default=None, help='path to the output file')
     parser.add_argument('--components', default=200, help='insert number of components', type=float)
-    parser.add_argument('--neighbours', default=30, help='insert number of neighbours', type=float)
+    parser.add_argument('--neighbours', default=50, help='insert number of neighbours', type=float)
     parser.add_argument('--min_dist', default=1, help='insert number of min distance', type=float)
     return parser.parse_args()
 

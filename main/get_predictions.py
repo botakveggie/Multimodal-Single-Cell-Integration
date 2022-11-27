@@ -32,7 +32,7 @@ def get_test_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('--inputs_path', help='path to the inputs file')
     parser.add_argument('--model_path', required=True, help='path to the model file')
-    parser.add_argument('--output_path', default='out.txt', help='path to the output file during testing')
+    parser.add_argument('--outputs_path', default='out.txt', help='path to the output file during testing')
     return parser.parse_args()
 
 def main(args):
@@ -46,12 +46,12 @@ def main(args):
     dataset.__setattr__('protein_ids', checkpoint['protein_ids'])
     dataset.__setattr__('num_targets', num_targets)
     if VERBOSE:
-        print('Testing model with {} features. Trained for {} epochs'.format(num_features, checkpoint['epoch']))
+        print('Testing model with {} features. Trained for {} epochs'.format(num_features+1, checkpoint['epoch']+1))
     model = CiteseqModel(num_features, num_targets, DROPOUT)
     model.load_state_dict(checkpoint['model_state_dict'])
 
     preds = get_predictions(model, dataset, device_str)
-    preds.to_csv(args.output_path)
+    preds.to_csv(args.outputs_path)
 
 if __name__=="__main__":
     args = get_test_arguments()

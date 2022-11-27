@@ -172,3 +172,4 @@ test_**.csv
 /GSE160251
 train_final.py
 /gse1
+/.sh

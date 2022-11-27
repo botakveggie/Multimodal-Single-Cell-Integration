@@ -132,8 +132,9 @@ def main(args):
         # creating train and test set
         val_size = int(VAL_FRAC * dataset.num_cells)
         train_size = dataset.num_cells - val_size  
-        train_set, validation_set = random_split(dataset, [train_size, val_size])
+        train_set, test_set = random_split(dataset, [train_size, val_size])
 
+        # using only train set for training
         scores = []
         for fold, (ds_train, ds_eval) in enumerate (kfold_split(train_set)):
             print("Fold: ", fold+1)
@@ -144,7 +145,7 @@ def main(args):
         print('CV score:', -np.mean(scores))
     else: # train full model
         model = CiteseqModel(num_features, num_targets, DROPOUT)
-        train(model, dataset, dataset, None , 'inal', BATCH_SIZE ,LEARNING_RATE, epoch, device_str, args.model_path, loss_fn)
+        train(model, dataset, dataset, None , -2, BATCH_SIZE ,LEARNING_RATE, epoch, device_str, args.model_path, loss_fn)
 
 if __name__=="__main__":
     args = get_train_arguments()

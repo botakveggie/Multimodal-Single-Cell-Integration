@@ -23,10 +23,10 @@ def train(model, dataset, batch_size, learning_rate, num_epoch, device='cpu', mo
     Specify VAL_FRAC to do hold-out validation.
     """
     
-    # creating train and validation set
+    # creating train and test set
     val_size = int(VAL_FRAC * dataset.num_cells)
     train_size = dataset.num_cells - val_size  
-    train_set, validation_set = random_split(dataset, [train_size, val_size])
+    train_set, test_set = random_split(dataset, [train_size, val_size])
     data_loader = DataLoader(train_set, batch_size=batch_size, collate_fn=collator, shuffle=True)
     
     # assign these variables
@@ -64,18 +64,18 @@ def train(model, dataset, batch_size, learning_rate, num_epoch, device='cpu', mo
                 (epoch + 1, step + 1, running_loss / (step+1)))
             running_loss = 0.0
     
-    # Checking loss with validation set
+    # Checking loss with test set
     model.eval()
-    data_loader = DataLoader(validation_set, batch_size=20, collate_fn=collator, shuffle=False)
+    data_loader = DataLoader(test_set, batch_size=20, collate_fn=collator, shuffle=False)
     r_loss = 0.0
     with torch.no_grad():
         for step,data in enumerate(data_loader):
             inputs = data[0].to(device)
             truths = data[1].to(device)
             outputs = model(inputs).to(device)
-            validation_loss = criterion(outputs, truths)
-            r_loss += validation_loss
-    print('validation loss: {:10.4f}'.format(r_loss/(step+1)))   
+            test_loss = criterion(outputs, truths)
+            r_loss += test_loss
+    print('Test Score: {:10.4f}'.format(r_loss/(step+1)))   
 
 
     end = datetime.datetime.now()
@@ -90,7 +90,7 @@ def train(model, dataset, batch_size, learning_rate, num_epoch, device='cpu', mo
         'params': {'VERBOSE': VERBOSE, 'LEARNING_RATE': LEARNING_RATE, 'BATCH_SIZE': BATCH_SIZE, 'NUM_EPOCHS': NUM_EPOCHS, 'DROPOUT': DROPOUT}
     }
     
-    torch.save(checkpoint,model_path)
+    torch.save(checkpoint, model_path)
     print('Model saved as', model_path)
 
 def get_train_arguments():
