@@ -2,7 +2,7 @@
 VERBOSE = 1
 LEARNING_RATE = 0.0005
 BATCH_SIZE = 50
-NUM_EPOCHS = 30
+NUM_EPOCHS = 25
 DROPOUT = 0.05
 VAL_FRAC = 0.2  # 0 to train with all data
 device_str = 'cpu'
