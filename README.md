@@ -40,7 +40,8 @@ Multimodal-Single-Cell-Integration
 │   │   train_cite_inputs_reduced.csv
 |
 └───model
-│   │   
+│   │   model_200301_final.pth     # final model used
+│   │   model_240501_final_30.pth
 |
 └──output
 │   │   

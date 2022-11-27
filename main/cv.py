@@ -31,7 +31,6 @@ def train(model, dataset, train_set, validation_set, fold, batch_size, learning_
 
     model.train()
     start = datetime.datetime.now()
-    # best_epoch_loss = 1
     for epoch in range(num_epoch):
         loss = 0.0
         ## training one epoch
