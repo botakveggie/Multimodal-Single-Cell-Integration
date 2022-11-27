@@ -23,6 +23,8 @@ def convert():
     protein_id = [protein_id[i].decode('UTF-8') for i in range(140)]
     f.close() 
 
+    del f
+
     # reading in test set
     print("reading datasets")
     adata = ad.read_h5ad("gse/GSE194122_cite.h5ad")
@@ -33,9 +35,20 @@ def convert():
     rna = pd.DataFrame(rna.toarray(), index=adata.obs_names, columns=rna_names)
     rna = rna.sample(70000, random_state=4171)
     
+    pca = pca(variance(rna))
+
     ### storing full set 
     print("saving rna data")
-    rna.to_csv('gse/test_inputs_full2.csv')
+    # rna.to_csv('gse/test_inputs_full2.csv')
+    pca.to_csv('gse/test_inputs_pca1.csv')
+
+    umap = red_umap(pca, 200, 30, 1)
+    umap.to_csv("gse/test_inputs_200301.csv")
+    umap = red_umap(pca, 240, 50, 1)
+    umap.to_csv("gse/test_inputs_240501.csv")
+
+    del pca
+    del umap
 
     ### obtaining same genes used
     valid = []
@@ -44,9 +57,19 @@ def convert():
             valid.append(i)
     
     rna = rna.loc[:,valid]
-    rna.to_csv('gse/test_inputs_sub2.csv')
+    pca = pca(variance(rna))
+    # rna.to_csv('gse/test_inputs_sub2.csv')
+    pca.to_csv('gse/test_inputs_pca2.csv')
 
-    ## ADT (target)
+    umap = red_umap(pca, 200, 30, 1)
+    umap.to_csv("gse/test_inputs_200301r.csv")
+    umap = red_umap(pca, 240, 50, 1)
+    umap.to_csv("gse/test_inputs_240501r.csv")
+    
+    del pca
+    del umap
+
+    """ ## ADT (target)
     print("adt")
     adt_names = adata.var[adata.var["feature_types"] == "ADT"].index
     adt = adata.X[:, 13953:]
@@ -61,15 +84,16 @@ def convert():
     adt = adt.loc[:,valid]
     print ("saving adt data")
     adt.to_csv('gse/test_targets2.csv')
-    print("done")
+    print("done") """
 
 def main():
     convert()
     # using the full one
-    full_rna = pd.read_csv('gse/test_inputs_full2.csv', index_col=0)
+    '''full_rna = pd.read_csv('gse/test_inputs_full2.csv', index_col=0)
 
     full_rna = variance(full_rna)
     full_rna = red_pca(full_rna)
+    
     full_rna_200301 = red_umap(full_rna, 200, 30, 1)
     full_rna_240501 = red_umap(full_rna, 240, 50, 1)
     
@@ -85,7 +109,7 @@ def main():
     
     rna_200301.to_csv("gse/test_inputs_200301r.csv")
     rna_240501.to_csv("gse/test_inputs_240501r.csv")
-
+    '''
 
 if __name__=="__main__":
     main()
